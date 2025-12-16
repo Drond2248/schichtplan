@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Shift Planner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="top-nav">
+    <div class="brand">Shift Planner</div>
+    <div class="nav-search">
+      <input type="search" id="global-search" placeholder="Suche nach Fahrer, Linie, Schicht-ID">
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="week">Planung (Woche)</button>
+      <button class="nav-tab" data-view="month">Monatsübersicht</button>
+      <button class="nav-tab" data-view="reporting">Reporting &amp; KPI</button>
+      <button class="nav-tab" data-view="approval">Schichtprüfung</button>
+      <button class="nav-tab" data-view="masterdata">Stammdaten</button>
+    </nav>
+    <div class="nav-user">
+      <span class="user-avatar">TL</span>
+    </div>
+  </header>
+
+  <main id="app-root">
+    <!-- WEEK VIEW -->
+    <section id="view-week" class="view active">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="calendar-nav">
+            <button class="icon-button" id="week-prev" aria-label="Vorherige Woche">&#x276E;</button>
+            <button class="today-button" id="week-today">Heute</button>
+            <button class="icon-button" id="week-next" aria-label="Nächste Woche">&#x276F;</button>
+            <input type="date" id="week-date-picker">
+          </div>
+        </div>
+        <div class="toolbar-center">
+          <span id="week-label" class="toolbar-label"></span>
+        </div>
+        <div class="toolbar-right">
+        </div>
+      </div>
+
+      <div class="planning-layout">
+        
+
+        <section class="schedule-container">
+          <div id="week-grid-header" class="grid-header"></div>
+          <div id="week-grid-body" class="grid-body"></div>
+        </section>
+
+        <aside class="template-panel-container">
+          <div class="template-panel-header">
+            <h2 class="section-title">Templates</h2>
+            <div class="template-header-actions">
+                            <button id="toggle-templates" class="secondary-button">Templates ein/aus</button>
+            </div>
+          </div>
+          <div id="template-panel" class="template-panel"></div>
+        </aside>
+      </div>
+    </section>
+
+
+    <!-- MASTERDATA VIEW -->
+    <section id="view-masterdata" class="view">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span class="toolbar-label">Stammdaten: Fahrer &amp; Templates</span>
+        </div>
+      </div>
+      <div class="masterdata-grid">
+        <section class="card">
+          <div class="card-header">
+            <h2 class="section-title">Fahrer-Stammdaten</h2>
+            <button id="master-driver-add-button" class="secondary-button">+ Fahrer</button>
+          </div>
+          <div class="card-body">
+            <div id="master-driver-list" class="driver-list"></div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-header">
+            <h2 class="section-title">Template-Stammdaten</h2>
+            <button id="master-template-add-button" class="secondary-button">+ Template</button>
+          </div>
+          <div class="card-body">
+            <div class="master-template-filters">
+              <div class="form-field">
+                <label for="master-template-filter-type">Schichttyp</label>
+                <select id="master-template-filter-type">
+                  <option value="all">Alle</option>
+                  <option value="early">Frühschicht</option>
+                  <option value="late">Spätschicht</option>
+                  <option value="night">Nachtschicht</option>
+                </select>
+              </div>
+            </div>
+            <div id="master-template-panel" class="template-panel"></div>
+          </div>
+        </section>
+        <section class="card masterdata-backup-card">
+          <div class="card-header">
+            <h2 class="section-title">Backup &amp; Wiederherstellung</h2>
+          </div>
+          <div class="card-body">
+            <p class="help-text">
+              Erstellen Sie ein Backup aller Daten als JSON-Datei oder laden Sie ein vorhandenes Backup wieder.
+            </p>
+            <div class="backup-actions">
+              <button id="btn-export-backup" class="secondary-button">Backup herunterladen</button>
+              <button id="btn-import-backup" class="secondary-button">Backup laden</button>
+              <input id="input-import-backup" type="file" accept="application/json" style="display: none;" />
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- MONTH VIEW -->
+    <section id="view-month" class="view">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="calendar-nav">
+            <button class="icon-button" id="month-prev" aria-label="Vorheriger Monat">&#x276E;</button>
+            <button class="today-button" id="month-today">Heute</button>
+            <button class="icon-button" id="month-next" aria-label="Nächster Monat">&#x276F;</button>
+            <input type="month" id="month-picker">
+          </div>
+        </div>
+        <div class="toolbar-center">
+          <span id="month-label" class="toolbar-label"></span>
+        </div>
+        <div class="toolbar-right">
+          <div class="form-field">
+            <label for="month-driver-select">Fahrer</label>
+            <select id="month-driver-select"></select>
+          </div>
+        </div>
+      </div>
+
+      <section class="month-layout">
+        <div id="month-calendar" class="month-calendar"></div>
+      </section>
+    </section>
+
+
+    <!-- MONTH LIST VIEW -->
+    <section id="view-month-list" class="view">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="calendar-nav">
+            <button class="icon-button" id="month-list-prev" aria-label="Vorheriger Monat">&#x276E;</button>
+            <button class="today-button" id="month-list-today">Heute</button>
+            <button class="icon-button" id="month-list-next" aria-label="Nächster Monat">&#x276F;</button>
+            <input type="month" id="month-list-picker">
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <div class="form-field">
+            <label for="month-list-driver">Fahrer</label>
+            <select id="month-list-driver">
+              <option value="all">Alle Fahrer</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="month-list-shift-type">Schichttyp</label>
+            <select id="month-list-shift-type">
+              <option value="all">Alle Schichten</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-header accent">
+          <h2>Monatsübersicht (Liste)</h2>
+        </div>
+        <div class="card-body">
+          <div id="month-list-table"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- REPORTING VIEW -->
+    <section id="view-reporting" class="view">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h1 class="toolbar-title">Reporting &amp; KPI</h1>
+        </div>
+      </div>
+
+
+      <section class="reporting-filters card">
+        <div class="card-header accent">
+          <h2>Filter</h2>
+        </div>
+        <div class="card-body">
+          <div class="filter-grid reporting-filter-row">
+            <!-- Zeitraum-Gruppe -->
+            <div class="filter-group filter-group--period">
+              <div class="form-field">
+                <label for="report-period-type">Berichtstyp</label>
+                <select id="report-period-type">
+                  <option value="day">Tag</option>
+                  <option value="week">Woche</option>
+                  <option value="month" selected>Monat</option>
+                  <option value="year">Jahr</option>
+                </select>
+              </div>
+              <div class="form-field" id="report-period-value-field">
+                <label for="report-period-date">Datum / Zeitraum</label>
+                <input type="date" id="report-period-date">
+                <input type="month" id="report-period-month">
+                <input type="number" id="report-period-year" min="2000" max="2100" step="1">
+              </div>
+            </div>
+
+            <!-- Filter-Gruppe -->
+            <div class="filter-group filter-group--filters">
+              <div class="form-field">
+                <label for="report-driver">Fahrer</label>
+                <select id="report-driver">
+                  <option value="all">Alle</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="report-shift-type">Schichttyp</label>
+                <select id="report-shift-type">
+                  <option value="all">Alle</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Aktions-Gruppe -->
+            <div class="filter-actions filter-actions--reporting">
+              <button id="report-refresh" class="primary-button">KPI aktualisieren</button>
+              <div class="export-control">
+                <button id="report-export" class="secondary-button">Export CSV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="kpi-cards" class="kpi-grid"></section>
+      <section id="driver-kpi-detail" class="card" style="display: none;">
+        <div class="card-header">
+          <h2>Detail-KPI für ausgewählten Fahrer</h2>
+        </div>
+        <div class="card-body">
+          <div id="driver-kpi-content" class="kpi-grid"></div>
+        </div>
+      </section>
+
+
+      <section class="report-tables">
+        <div class="card">
+          <div class="card-header">
+            <h2>Arbeitszeit je Fahrer</h2>
+          </div>
+          <div class="card-body">
+            <table id="table-worktime" class="data-table">
+              <thead>
+                <tr>
+                  <th>Fahrer</th>
+                  <th>Stunden gesamt</th>
+                  <th>Überstunden</th>
+                  <th>Nachtstunden</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Abwesenheit je Fahrer</h2>
+          </div>
+          <div class="card-body">
+            <table id="table-absence" class="data-table">
+              <thead>
+                <tr>
+                  <th>Fahrer</th>
+                  <th>Urlaub</th>
+                  <th>Krank</th>
+                  <th>Frei</th>
+                  <th>Feiertage</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Regelverstöße / Auffällige Schichten</h2>
+          </div>
+          <div class="card-body">
+            <table id="table-violations" class="data-table">
+              <thead>
+                <tr>
+                  <th>Schicht-ID</th>
+                  <th>Fahrer</th>
+                  <th>Datum</th>
+                  <th>Verstoß</th>
+                  <th>Kommentar</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- APPROVAL VIEW -->
+    <section id="view-approval" class="view">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h1 class="toolbar-title">Schichtprüfung</h1>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-header accent">
+          <h2>Parameter</h2>
+        </div>
+        <div class="card-body filter-grid">
+          <div class="form-field">
+            <label for="approval-from">Von</label>
+            <input type="date" id="approval-from">
+          </div>
+          <div class="form-field">
+            <label for="approval-to">Bis</label>
+            <input type="date" id="approval-to">
+          </div>
+          <div class="form-field">
+            <label for="approval-driver">Fahrer</label>
+            <select id="approval-driver">
+              <option value="all">Alle</option>
+            </select>
+          </div>
+          <div class="form-field checkbox-field">
+            <label>
+              <input type="checkbox" id="approval-include-approved">
+              Genehmigte Schichten einbeziehen
+            </label>
+          </div>
+          <div class="form-field checkbox-field">
+            <label>
+              <input type="checkbox" id="approval-only-violations">
+              Nur Schichten mit Regelverstößen
+            </label>
+          </div>
+          <div class="form-field checkbox-field">
+            <label>
+              <input type="checkbox" id="approval-only-work">
+              Nur arbeitszeitrelevante Schichten
+            </label>
+          </div>
+          <div class="filter-actions">
+            <button id="approval-load" class="primary-button">Schichten laden</button>
+            <button id="approval-save" class="secondary-button">Änderungen speichern</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Schichten zur Prüfung</h2>
+        </div>
+        <div class="card-body">
+          <table id="table-approval" class="data-table">
+            <thead>
+              <tr>
+                <th>Schicht-ID</th>
+                <th>Fahrer</th>
+                <th>Linie</th>
+                <th>Standort</th>
+                <th>Geplante Zeit</th>
+                <th>Ist-Start</th>
+                <th>Ist-Ende</th>
+                <th>Kommentar</th>
+                <th>Fehler</th>
+                <th>Freigegeben</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      
+      <section class="card">
+        <div class="card-header">
+          <h2>Personalbedarf Früh/Spät</h2>
+        </div>
+        <div class="card-body">
+          <div id="approval-staffing-summary"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Risk-Report (Krankheitsrisiko)</h2>
+        </div>
+        <div class="card-body">
+          <div id="approval-risk-summary"></div>
+        </div>
+      </section>
+</section>
+    </section>
+  </main>
+
+  <!-- Simple modal for shift details -->
+  <div id="modal-backdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Details</h2>
+        <button id="modal-close" class="icon-button">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer">
+        <button id="modal-ok" class="primary-button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/holidays-brandenburg.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/view.js"></script>
+  <script src="js/controller.core.js"></script>
+  <script src="js/controller.drivers.js"></script>
+  <script src="js/controller.templates.js"></script>
+  <script src="js/controller.planning.js"></script>
+  <script src="js/controller.reporting.js"></script>
+  <script src="js/controller.approval.js"></script>
+  <script src="js/controller.backup.js"></script>
+  <script src="js/controller.init.js"></script>
+</body>
+</html>
